@@ -3,7 +3,7 @@
 
 \begin{document}
 
-\title{Understanding Intent-Based Evaluation for Legal Document Summarization}
+\title{A Student Perspective on Intent-Driven Evaluation\\for Summarizing Legal Judgments}
 
 \author{
 \IEEEauthorblockN{Aditi Singh}
@@ -34,43 +34,65 @@ India
 \maketitle
 
 \begin{abstract}
-Legal judgments are usually long, dense, and difficult to read quickly. Because of this, legal document summarization is an important task in natural language processing. However, a summary should not only be short; it should also preserve the real meaning of the case. This paper is a short student understanding of the framework proposed by Mullick et al. for evaluating legal summaries. The main idea is that common metrics such as ROUGE focus on word overlap, while legal summaries should also capture the intent of the case. The framework therefore checks whether a summary keeps the important intent-bearing phrases linked to categories such as murder, robbery, land dispute, and corruption. What makes this work meaningful is that the proposed intent-based evaluation was reported to agree better with human judgment than standard overlap-based scoring. In our view, this makes the framework practical as well as academically interesting.
+Court judgments tend to be lengthy, structurally complex, and resistant to quick comprehension, which makes automatic summarization a valuable capability within legal natural language processing. Yet compressing a ruling into fewer sentences is only half the challenge; the condensed version must still reflect what the case fundamentally concerns. In this paper we present a student-level analysis of the evaluation methodology introduced by Mullick et al., whose central argument is that surface-level overlap metrics such as ROUGE fail to capture whether a summary retains the substantive focus of a legal proceeding. Their alternative checks whether key phrases tied to the underlying nature of the dispute---for instance, whether the matter involves homicide, theft, property conflict, or official misconduct---survive the summarization process. According to the authors, this intent-aware scoring mechanism correlates more closely with expert human assessments than conventional token-matching measures. We discuss the strengths and shortcomings of this approach and reflect on what it reveals about domain-sensitive evaluation design.
 \end{abstract}
 
 \begin{IEEEkeywords}
-legal document summarization, intent-based evaluation, legal NLP, JointBERT
+legal summarization evaluation, intent preservation, legal NLP, joint classification and slot filling
 \end{IEEEkeywords}
 
 \section{Introduction}
-Legal documents are not like short news articles or social media posts. They often contain facts, arguments, procedural history, legal reasoning, and the final decision in the same document. A person reading a court judgment may need to know very quickly what kind of case it is and what actually happened. This is why summarization becomes useful in the legal domain.
+A court ruling is fundamentally unlike a news headline or a product review. Within a single document one may encounter procedural chronology, witness testimony, statutory references, adversarial arguments, judicial reasoning, and a dispositional outcome. Any reader---whether a practitioner pressed for time or a litigant seeking clarity---benefits from a shorter version that faithfully conveys the essence of the decision. Automatic summarization aims to provide exactly that.
 
-This short paper presents our understanding of the work in \cite{mullick2022}. The problem discussed in that work is not only how to generate summaries, but also how to judge whether a summary is truly useful. A summary can have many words in common with a reference summary and still fail to mention the most important action, accusation, or outcome of the case. In law, that missing detail matters a lot. Because of that, legal summarization needs evaluation that goes beyond surface similarity.
+The contribution examined in this paper is the evaluation framework described by Mullick et al.\ \cite{mullick2022}. Their work draws attention to an underappreciated gap: most existing quality metrics reward a summary for sharing words with a reference text, yet sharing words does not guarantee that the summary communicates the correct legal substance. A condensed version of a murder trial could achieve respectable overlap scores while entirely omitting the nature of the offence. In legal practice, such an omission would render the summary nearly useless. The framework therefore proposes measuring whether the core purposive content of a case---what we might informally call its ``about-ness''---is retained after compression.
 
-\section{Understanding the Framework}
-The framework starts from a simple but strong idea: a good legal summary should preserve case intent. Here, intent does not mean emotion or opinion. It means the phrases that show what the case is really about, such as the core offence, dispute, claim, or outcome. If a summary misses those phrases, then it may sound acceptable but still be weak from a legal point of view.
+Our goal in the present paper is not to extend or reproduce the original experiments. Instead, we offer a structured reading of the framework, situate it relative to standard evaluation practice, and provide our own critical observations as undergraduate students engaging with legal NLP for the first time.
 
-The dataset described in the repository contains 93 Indian legal documents with manually annotated intent phrases. The four main case categories are Murder, Robbery, Land Dispute, and Corruption. The repository also includes Australian legal data, where intent phrases are extracted automatically to study whether the method can generalize across jurisdictions. This design is useful because it does not limit the idea to only one legal system.
+\section{Overview of the Evaluation Approach}
 
-The project compares several summarization approaches available in the repository. These include a BERT-based extractive summarizer, a Graphical Model approach, LetSum, CaseSummarizer, and Legal-LED. Some of these methods extract sentences directly from the source document, while others are more generative. Even though the models are different, the important point is that all of them can be tested under the same evaluation view.
+\subsection{Core Motivation}
+The starting observation is straightforward: overlap-based scores treat every token as equally important. In general-domain summarization this approximation is often acceptable because the distribution of salient information across tokens is relatively uniform. Legal texts violate that assumption. A handful of phrases---describing the offence, the statute invoked, or the remedy granted---carry disproportionate weight. If those specific phrases are absent from the summary, no amount of shared boilerplate language compensates for the loss.
 
-To capture intent, the framework uses a JointBERT-style setup for two related tasks: identifying the overall case category and locating important intent phrases inside the text. In simple words, the model tries to answer two questions together: what is this case about, and which words in the summary show that? This is helpful because legal summaries are not judged only by fluency. They are judged by whether they keep the legally meaningful content.
+\subsection{Dataset and Scope}
+The accompanying corpus comprises 93 Indian judicial documents, each manually annotated to highlight the phrases that signal the substantive focus of the case. Four broad dispute categories are defined: homicide, robbery, disputes over land ownership, and corruption by public officials. To probe whether the method transfers across legal traditions, the authors additionally incorporate a set of Australian court documents in which intent-bearing phrases are identified through automated extraction rather than manual labeling. This cross-jurisdictional design is notable because legal language, citation conventions, and document structure differ significantly between the two systems, and any evaluation method that only works under one tradition would have limited practical reach.
 
-\section{Discussion}
-What we find most valuable in this framework is its practical thinking. Traditional metrics like ROUGE are still useful because they are fast and widely accepted \cite{lin2004}. But they mostly reward lexical overlap. In legal writing, two summaries may use different wording while still carrying the same meaning, or they may share many words while missing the central issue. That is why intent-based evaluation feels more aligned with real use.
+\subsection{Summarization Baselines}
+Several summarization techniques are benchmarked within the same repository. Among them are a BERT-driven extractive model, a graph-based ranking approach, the LetSum heuristic pipeline, CaseSummarizer, and Legal-LED, a long-document transformer variant. The diversity matters: extractive methods select verbatim sentences from the source, whereas abstractive or hybrid methods may rephrase content. A robust evaluation metric should judge both families fairly, and the intent-based approach claims to do so by focusing on semantic retention rather than surface copying.
 
-The repository guide also explains that the proposed metric showed better agreement with human evaluation than common overlap-based metrics. This matters because the final reader of a legal summary is a human, not an automatic script. If human evaluators think a summary misses the real case focus, then a high overlap score alone should not be trusted too much. From a student perspective, this is the strongest lesson of the paper: evaluation must match the purpose of the task.
+\subsection{Joint Intent and Slot Detection}
+At the technical core of the framework sits a model inspired by the JointBERT architecture described by Chen et al.\ \cite{chen2019}. This model simultaneously tackles two objectives. First, it classifies the overall dispute type of the document---answering the question ``what category of legal matter is this?'' Second, it performs sequence labeling to pinpoint which tokens within the text constitute intent-bearing spans---answering ``which specific words reveal that category?'' Training these objectives together allows the classification signal to inform span detection and vice versa, producing a tighter coupling between global case understanding and local phrase-level annotation.
 
-At the same time, the framework has limits. The manually annotated legal dataset is small, which is understandable because annotation in law takes time and domain knowledge. The categories are also specific, so wider deployment would need more data and more testing. Even with these limitations, the framework feels promising because it brings legal meaning back into the evaluation process instead of reducing everything to shared words.
+The practical consequence is that, given a candidate summary, the system can check (a) whether the summary still permits correct case-type classification, and (b) whether the intent spans that a domain expert would consider essential are present or recoverable from the summarized text. A summary that scores well on both dimensions is one that has preserved the legal substance of the original.
+
+\section{Critical Discussion}
+
+\subsection{Why This Matters Beyond Academia}
+The strongest argument for intent-based evaluation is pragmatic. Downstream consumers of legal summaries---judges reviewing prior rulings, attorneys preparing briefs, citizens navigating case law---care about whether the summary tells them what happened and why it matters legally. A metric that ignores this dimension optimizes for the wrong objective. The authors report that their intent-aware score aligns more closely with rankings produced by human evaluators than ROUGE does, which suggests that the metric captures something genuinely relevant to end-user satisfaction \cite{mullick2022}.
+
+\subsection{Complementarity with Existing Metrics}
+We do not read this work as an argument for discarding ROUGE or BERTScore entirely. Overlap metrics remain computationally cheap, deterministic, and widely understood, which makes them useful as first-pass filters. The intent-based score is better understood as an additional diagnostic layer that catches failure modes invisible to token overlap. An ideal evaluation pipeline might combine both: a fast overlap check followed by a targeted intent-preservation audit.
+
+\subsection{Scalability Concerns}
+The most evident limitation is data scale. Ninety-three annotated documents, while carefully curated, represent a narrow slice of legal diversity. Indian criminal and civil law alone spans dozens of offence categories, regulatory domains, and procedural contexts that the current four-class taxonomy does not cover. Scaling the approach would require either substantially larger annotation campaigns---expensive and dependent on legal expertise---or reliable semi-supervised methods for propagating intent labels to unannotated corpora. The Australian extension is a promising step, but automated extraction introduces its own noise, and the paper does not fully quantify the quality gap between manual and automatic annotations.
+
+\subsection{Generalization Across Legal Systems}
+Beyond scale, there is a deeper question of transferability. Common-law jurisdictions rely heavily on precedent and ratio decidendi, while civil-law systems foreground statutory interpretation. The notion of ``case intent'' may manifest differently in each tradition. A robbery case in India and a vol simple proceeding in France share a conceptual category but differ in how the judgment is structured, what counts as a key phrase, and which sections of the document carry the most weight. Future work could investigate whether the joint classification--slot-filling architecture transfers with minimal re-annotation, or whether each legal family demands its own labeled corpus.
+
+\subsection{Absence of Abstractive Distortion Analysis}
+One scenario the framework does not deeply explore is abstractive hallucination. A generative summarizer might fabricate a plausible-sounding legal phrase that the model then incorrectly accepts as a valid intent span. Because the slot-filling component operates on surface tokens, it may be vulnerable to confident but factually wrong text. Incorporating a factual consistency check---for example, an entailment classifier between source and summary---would strengthen the pipeline against this failure mode.
+
+\section{Lessons for Evaluation Design}
+From a broader NLP standpoint, the framework reinforces a principle that extends well beyond legal text: evaluation metrics should be aligned with the task's real-world purpose. Machine translation moved from BLEU toward human-correlated learned metrics; dialogue evaluation shifted from perplexity toward engagement and coherence scores. Legal summarization, by adopting intent preservation as a criterion, follows the same trajectory. For students entering the field, this is perhaps the most transferable insight: whenever a standard metric feels inadequate, the right response is not to abandon quantitative evaluation but to design a metric that measures what actually matters in the target domain.
 
 \section{Conclusion}
-In conclusion, this framework offers a thoughtful way to look at legal document summarization. Instead of asking only whether a summary resembles a reference, it asks whether the summary preserves the intent of the case. That shift makes the evaluation more meaningful for legal documents, where the key issue and outcome are more important than simple word matching. As students, we see this work as a good example of how NLP systems become stronger when evaluation is tied to real domain needs. For legal AI, that is an important direction.
+The evaluation framework studied in this paper reframes the quality question for legal summarization. Rather than asking how many words a candidate summary shares with a reference, it asks whether the summary still communicates the fundamental nature of the dispute. This shift---from lexical fidelity to semantic fidelity---produces scores that better reflect expert human judgment. While the current dataset is modest in size and the category taxonomy is narrow, the underlying principle is sound and, in our view, broadly applicable. As students, we see this work as an instructive case study in domain-aware metric design, and we believe that expanding the annotated corpus and stress-testing the approach against abstractive hallucination would be natural and valuable next steps.
 
 \begin{thebibliography}{00}
-\bibitem{mullick2022} A. Mullick, A. Nandy, M. N. Kapadnis, S. Patnaik, R. Raghav, and R. Kar, ``An evaluation framework for legal document summarization,'' in \emph{Proceedings of the Language Resources and Evaluation Conference}, 2022.
+\bibitem{mullick2022} A.~Mullick, A.~Nandy, M.~N.~Kapadnis, S.~Patnaik, R.~Raghav, and R.~Kar, ``An evaluation framework for legal document summarization,'' in \emph{Proceedings of the Language Resources and Evaluation Conference}, 2022.
 
-\bibitem{lin2004} C.-Y. Lin, ``ROUGE: A package for automatic evaluation of summaries,'' in \emph{Text Summarization Branches Out}, 2004, pp. 74--81.
+\bibitem{lin2004} C.-Y.~Lin, ``ROUGE: A package for automatic evaluation of summaries,'' in \emph{Text Summarization Branches Out}, 2004, pp.~74--81.
 
-\bibitem{chen2019} Q. Chen, Z. Zhuo, and W. Wang, ``BERT for joint intent classification and slot filling,'' arXiv:1902.10909, 2019.
+\bibitem{chen2019} Q.~Chen, Z.~Zhuo, and W.~Wang, ``BERT for joint intent classification and slot filling,'' arXiv:1902.10909, 2019.
 \end{thebibliography}
 
 \end{document}
